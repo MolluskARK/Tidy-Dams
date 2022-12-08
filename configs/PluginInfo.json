@@ -1,6 +1,6 @@
 {
-    "FullName": "Plugin Template",
-    "Description": "Simple example plugin",
-    "Version": 0.1,
+    "FullName": "Tidy Dams",
+    "Description": "Dams are destroyed when left with only wood",
+    "Version": 1.2,
     "MinApiVersion": 3.54
 }
