@@ -1,6 +1,6 @@
-#include <fstream>
 #include "API/ARK/Ark.h"
 #include "json.hpp"
+#include <fstream>
 
 int configCacheDecayMins;
 
@@ -34,8 +34,8 @@ void Hook_UPrimalInventoryComponent_ServerCloseRemoteInventory(UPrimalInventoryC
     }
 }
 
-// Called when the server is ready
-void Plugin_ServerReadyInit()
+// Called when the server is ready, do post-"server ready" initialization here
+void OnServerReady()
 {
     damClass = UVictoryCore::BPLoadClass(&damClassPath);
     if (!damClass)
@@ -46,15 +46,13 @@ void Plugin_ServerReadyInit()
         Log::GetLog()->error("Plugin_ServerReadyInit() - Wood class not found");
 }
 
-// ArkServerApi hook that triggers once when the server is ready
+// Hook that triggers once when the server is ready
 DECLARE_HOOK(AShooterGameMode_BeginPlay, void, AShooterGameMode*);
 void Hook_AShooterGameMode_BeginPlay(AShooterGameMode* _this)
 {
-    Log::GetLog()->info("Hook_AShooterGameMode_BeginPlay()");
     AShooterGameMode_BeginPlay_original(_this);
 
-    // Call Plugin_ServerReadyInit() for post-"server ready" initialization
-    Plugin_ServerReadyInit();
+    OnServerReady();
 }
 
 void ReadConfig()
@@ -104,7 +102,7 @@ void ReloadConfigRconCmd(RCONClientConnection* connection, RCONPacket* packet, U
     connection->SendMessageW(packet->Id, 0, &reply);
 }
 
-// Called by ArkServerApi when the plugin is loaded
+// Called by ArkServerApi when the plugin is loaded, do pre-"server ready" initialization here
 extern "C" __declspec(dllexport) void Plugin_Init()
 {
     Log::Get().Init(PROJECT_NAME);
@@ -121,12 +119,12 @@ extern "C" __declspec(dllexport) void Plugin_Init()
         &Hook_UPrimalInventoryComponent_ServerCloseRemoteInventory,
         &UPrimalInventoryComponent_ServerCloseRemoteInventory_original);
 
-    // If the server is ready, call Plugin_ServerReadyInit() for post-"server ready" initialization
+    // If the server is ready, call OnServerReady() for post-"server ready" initialization
     if (ArkApi::GetApiUtils().GetStatus() == ArkApi::ServerStatus::Ready)
-        Plugin_ServerReadyInit();
+        OnServerReady();
 }
 
-// Called by ArkServerApi when the plugin is unloaded
+// Called by ArkServerApi when the plugin is unloaded, do cleanup here
 extern "C" __declspec(dllexport) void Plugin_Unload()
 {
     ArkApi::GetCommands().RemoveConsoleCommand(PROJECT_NAME".Reload");
