@@ -1,6 +1,6 @@
 {
     "FullName": "Tidy Dams",
     "Description": "Dams are destroyed when left with only wood",
-    "Version": 1.2,
+    "Version": 1.3,
     "MinApiVersion": 3.56
 }
